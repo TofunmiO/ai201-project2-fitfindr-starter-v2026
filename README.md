@@ -177,18 +177,15 @@ $ python -c "from tools import create_fit_card; ..."
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
+| 1. matching query completes | 4 of 5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED |
+| 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET |
+| 3. empty wardrobe |  | PASS | PASS | PASS | PASS | PASS | MET |
 | 4.  |  |  |  |  |  |  |  |
 | 5.  |  |  |  |  |  |  |  |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
-```
-
-```
 
 ---
 

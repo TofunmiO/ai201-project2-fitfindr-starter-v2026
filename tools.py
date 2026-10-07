@@ -20,12 +20,48 @@ That last line is what your loop branches on. "Returns a list" earns nothing —
 the description has to say what is *in* the list.
 """
 
+import re
+
 import config  # noqa: F401 — you'll use this in search_listings
 from generate import generate
 from utils.data_loader import load_listings
 
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
+#to make our agent more effective, we add stop words. stop words are words that have no meaning since we are looking for outfits and these everyday words don't help us
+_STOPWORDS = {
+    "a", "an", "and", "the", "for", "with", "in", "of"
+}
+
+#removestop words, keep keywords and convert to lowercase - removes stop words from search str sdent to agent
+def keywords(text:str) -> set[str]:
+    """ Lowercase words worth matching on,, stopwords removed."""
+    words = re.findall(r"[a-z0-9']+", (text or "").lower())
+    return {w for w in words if w not in _STOPWORDS and len(w) > 1}
+
+#figure out size token since it goes in search listing
+def _size_tokens(size:str) -> set[str]:
+    if not size:
+        return set()
+    cleaned = re.sub(r"\([^)]*\)", " ", size or "")
+    cleaned = cleaned.replace("/", " ")
+    tokens = {p.strip().upper() for p in cleaned.split() if p.strip()}
+    return tokens
+
+def _size_matches(wanted: str, listing_size: str) -> bool:
+    """Every token of the wanted size must appear in the listing's size tokens.
+
+    Whole tokens, not substrings: "M" matches "S/M" and "M/L" but not "XL", and
+    "US 8" does not match "US 9". One Size listings fit any size.
+    """
+    if not wanted:
+        return True
+    listing_tokens = _size_tokens(listing_size)
+    if {"ONE", "SIZE"} <= listing_tokens:
+        return True
+    wanted_tokens = _size_tokens(wanted)
+    return bool(wanted_tokens) and wanted_tokens <= listing_tokens
+
 
 def search_listings(
     description: str,
@@ -78,8 +114,26 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    wanted = keywords(description)
+    scored = []
+    for listing in load_listings():
+        if max_price is not None and listing["price"] > max_price: #if it is overbudget
+            continue
+        if size and not _size_matches(size, listing["size"]): #if it is wrong size
+            continue
+        # Title, tags and category count double: they say what the item is.
+        # Description, colors and brand are weaker evidence: they mention it in passing.
+        strong = keywords(
+            " ".join([listing["title"], listing["category"], *listing["style_tags"]])
+        )
+        weak = keywords(
+            " ".join([listing["description"], listing["brand"] or "", *listing["colors"]])
+        )
+        score = 2 * len(wanted & strong) + len(wanted & (weak - strong))
+        if score > 0:
+            scored.append((score, listing))
+    scored.sort(key=lambda pair: (-pair[0], pair[1]["price"]))
+    return [listing for _, listing in scored[: config.SEARCH_RESULT_LIMIT]]
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
