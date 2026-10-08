@@ -166,8 +166,41 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    items = (wardrobe or {}).get("items") or []
+
+    item_text = (
+        f"{new_item['title']} — {new_item['category']}, "
+        f"{', '.join(new_item['colors'])}, "
+        f"tags: {', '.join(new_item['style_tags'])}, "
+        f"size {new_item['size']}, ${new_item['price']:g}"
+    )
+
+    system = (
+        "You are a thrift-fashion stylist. Suggest one or two outfits in a few "
+        "short sentences each. Never invent pieces the user didn't list."
+    )
+
+    if not items:
+        prompt = (
+            f"A shopper is considering this thrifted piece: {item_text}.\n"
+            "They haven't entered a wardrobe yet. Give general styling ideas: "
+            "what kinds of pieces, colors and shoes pair well with it."
+        )
+    else:
+        wardrobe_text = "\n".join(
+            f"- {w['name']} ({w['category']}, {', '.join(w['colors'])})"
+            + (f" — {w['notes']}" if w.get("notes") else "")
+            for w in items
+        )
+        prompt = (
+            f"A shopper is considering this thrifted piece: {item_text}.\n"
+            f"Here is what they already own:\n{wardrobe_text}\n"
+            "Suggest one or two outfits that combine the new piece with items "
+            "from this list. Name the owned pieces exactly as written."
+        )
+
+    response = generate(prompt, system=system)
+    return response.strip() or "Try pairing it with simple basics in neutral colors."
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -206,5 +239,24 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    if not outfit or not outfit.strip():
+        return "No fit card yet: there was no outfit suggestion to write about."
+ #  The system text tells the model who it is and how to write (a real person posting, no hashtag spam)
+    system = (
+        "You write short social media captions for thrift finds. Sound like a "
+        "real person posting, not a product description. No hashtag spam."
+    )
+    # the prompt hands it the actual job and the details: the item, price, platform and outfit.
+    # new_item is a listing dict (one of create_fit_card dict's expected items), 
+    # so new_item['title'], new_item['price'] and new_item['platform'] read those fields from the listing.
+    prompt = (
+        f"Write a two-to-four sentence caption about this thrift find.\n"
+        f"Item: {new_item['title']}\n"
+        f"Price: ${new_item['price']:g}\n"
+        f"Platform: {new_item['platform']}\n"
+        f"Outfit idea: {outfit}\n\n"
+        "Mention the item, its price and the platform once each, and be "
+        "specific about the vibe."
+    )
+    response = generate(prompt, system=system)
+    return response.strip() or "Found something great, outfit details coming soon."

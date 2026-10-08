@@ -143,7 +143,17 @@ def run_agent(query: str, wardrobe: dict) -> dict:
 
         steps += 1
         trace.check_iterations(steps)
+        # UNIT 4 swap: the search now goes straight to the MCP server through
+        # mcp_client.call_tool. The line below is what ran before; it went through
+        # _search(), which called MCP but silently fell back to a direct call.
         results = _search(parsed)
+        # from mcp_client import call_tool
+
+        # results = call_tool("search_listings", {
+        #     "description": parsed["description"],
+        #     "size": parsed["size"],
+        #     "max_price": parsed["max_price"],
+        # })
         session["search_results"] = results
         trace.step(
             "search_listings (via MCP)",
