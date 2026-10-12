@@ -33,7 +33,7 @@ _STOPWORDS = {
     "a", "an", "and", "the", "for", "with", "in", "of"
 }
 
-#removestop words, keep keywords and convert to lowercase - removes stop words from search str sdent to agent
+#remove stop words, keep keywords and convert to lowercase - removes stop words from search str sent to agent
 def keywords(text:str) -> set[str]:
     """ Lowercase words worth matching on,, stopwords removed."""
     words = re.findall(r"[a-z0-9']+", (text or "").lower())
@@ -166,7 +166,7 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    items = (wardrobe or {}).get("items") or []
+    items =(wardrobe or {}).get("items") or []
 
     item_text = (
         f"{new_item['title']} — {new_item['category']}, "
