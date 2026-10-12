@@ -40,7 +40,7 @@
 ## What This Does
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
-
+FitFindr helps a thrift shopper find a piece and work out how to wear it. The user types a plain-language request such as "vintage graphic tee under $30", optionally with a size, and the agent searches a catalog of 40 second-hand listings for matches. It picks the best match and suggests one or two outfits that combine it with pieces from the user's own wardrobe, or general styling advice if they haven't entered one. Then it writes a short, post-ready caption about the find. If nothing in the catalog matches, the agent stops and says what the user could change (broader words, a different size or a higher price).
 
 
 ---
@@ -201,15 +201,19 @@ Nothing beats the effortless 90s off-duty model vibe of a good medium wash. Thes
 **Moment 1**
 
 - *What I asked for:*
+ I asked Claude to implement search_listings by following the TODO in tools.py: filter by price and size, score by keyword overlap, drop zero scores, sort, and return an empty list when nothing matches.
 - *What came back:*
+A working function that reused my _size_tokens and _size_matches helpers and added weighted scoring (title, category and tags count double). Claude also pointed out a bug in my size helper: it returned true when the wanted size and the listing size shared any token, so "US 8" also matched "US 9" because both contain "US".
 - *What I changed:*
-
+I accepted the rewrite after seeing the reasoning. A requested size must now match as whole tokens, so "M" matches "S/M" and "M/L" but not "XL". I asked for a check of the price ceiling and size cases before moving on.
 **Moment 2**
 
 - *What I asked for:*
+ I had already built run_agent myself. I pasted the milestone instructions and asked Claude to verify whether my implementation met them.
 - *What came back:*
+Claude confirmed that it had been implemented and found two hand-offs, the parsed query and the search results, that went through local variables and not the session, which the instruction says not to do.
 - *What I changed:*
-
+ I approved the fix, on conditions I set: Claude had to confirm there were no unused variables left and that everything it added worked and wasn't failing silently. Claude's scan found only an unused import config from the starter, and it re-ran a matching query, a no-match query and an empty-wardrobe query to confirm the behavior was the same. The checks also exposed a gap in my parse_query: a bare "size 8" isn't read as a size, so the filter is silently skipped. I couldn't tell which country's sizing "8" meant, so I held off on changing it.
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
