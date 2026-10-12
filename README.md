@@ -60,24 +60,34 @@
 ### `search_listings`
 
 - **What it does:**
+Looks through all the listings, finds the listings that match your description, size and price limit, and returns the best matches (or an empty list if none).
 - **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
+description (str), size (str or None, optional), max_price (float or None, optional)
 - **Returns:**
+list of listing dicts, best match first and at most 10, each with id, title, description, category, style_tags, size, condition, price, colors, brand (can be None) and platform.
 - **When it has nothing:**
+Returns an empty list [], not None and not an error
 
 ### `suggest_outfit`
 
 - **What it does:**
+Asks the model to suggest one or two outfits that combine a thrifted listing with pieces from the user's wardrobe, or general styling ideas if the wardrobe is empty.
 - **Inputs:**
+new_item (dict, a listing with title, category, colors, style_tags, size and price), wardrobe (dict with an items key holding a list of dicts, each with name, category, colors, style_tags and optional notes)
 - **Returns:**
+A non-empty string of one or two outfit suggestions. When the wardrobe has items, it names the pieces the user already owns.
 - **When it has nothing:**
-
+If the wardrobe is empty, missing or None, it returns a string of general styling advice for the item, never "" and never an error. If the model sends back nothing, it returns a fixed fallback sentence, so it's never empty.
 ### `create_fit_card`
 
 - **What it does:**
+Asks the model to write a short social-media caption about the thrifted find, based on the item and the outfit suggestion.
 - **Inputs:**
+outfit (str, the text from suggest_outfit), new_item (dict, a listing with title, price and platform).
 - **Returns:**
+A string of two to four sentences written like a real post, mentioning the item, its price and its platform once each.
 - **When it has nothing:**
-
+ If outfit is empty or only whitespace, it returns the string "No fit card yet: there was no outfit suggestion to write about." It does not raise. If the model sends back nothing, it returns a fixed fallback sentence.
 ---
 
 ## Planning Loop
@@ -92,15 +102,22 @@
 
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
-
 **Branch rule:**
-
+ If search_listings returns an empty list, put a message in session["error"] that names what the user could change (broader words, a different size, a higher price), and return the session without calling suggest_outfit or create_fit_card. Otherwise, take the first result, put it in session["selected_item"], and go on to suggest_outfit, then create_fit_card.
 **Where it lives:** `agent.py::run_agent`
-
+in the if not results: check.
 **How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
-
+Regex
 **What moves through the session:** <!-- which fields, in what order -->
+What moves through the session, in order:
 
+query (str, what the user typed) and wardrobe (dict, the user's closet)
+parsed (dict: description, size, max_price)
+search_results (list of listing dicts)
+selected_item (dict, the first search result)
+outfit_suggestion (str, outfit text)
+fit_card (str, the caption)
+error (str or None, set only when the run ends early)
 ---
 
 ## Sample Run
