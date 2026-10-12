@@ -137,16 +137,15 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     try:
         steps += 1
         trace.check_iterations(steps)
-        parsed = parse_query(query)
-        session["parsed"] = parsed
-        trace.step("parse_query", inputs=query, returned=parsed)
+        session["parsed"] = parse_query(query)
+        trace.step("parse_query", inputs=query, returned=session["parsed"])
 
         steps += 1
         trace.check_iterations(steps)
         # UNIT 4 swap: the search now goes straight to the MCP server through
         # mcp_client.call_tool. The line below is what ran before; it went through
         # _search(), which called MCP but silently fell back to a direct call.
-        results = _search(parsed)
+        session["search_results"] = _search(session["parsed"])
         # from mcp_client import call_tool
 
         # results = call_tool("search_listings", {
@@ -154,17 +153,16 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         #     "size": parsed["size"],
         #     "max_price": parsed["max_price"],
         # })
-        session["search_results"] = results
         trace.step(
             "search_listings (via MCP)",
-            inputs=parsed,
-            returned=results,
-            note=f"{len(results)} match(es)",
+            inputs=session["parsed"],
+            returned=session["search_results"],
+            note=f"{len(session['search_results'])} match(es)",
         )
 
         # ── THE BRANCH ────────────────────────────────────────────────────────
-        if not results:
-            session["error"] = _nothing_found_message(parsed)
+        if not session["search_results"]:
+            session["error"] = _nothing_found_message(session["parsed"])
             trace.step(
                 "branch",
                 note="search returned []: stopping before suggest_outfit",
@@ -173,7 +171,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
 
         steps += 1
         trace.check_iterations(steps)
-        session["selected_item"] = results[0]
+        session["selected_item"] = session["search_results"][0]
         trace.step("select_item", returned=session["selected_item"])
 
         steps += 1

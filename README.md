@@ -102,22 +102,22 @@ A string of two to four sentences written like a real post, mentioning the item,
 
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
-**Branch rule:**
+- **Branch rule:**
  If search_listings returns an empty list, put a message in session["error"] that names what the user could change (broader words, a different size, a higher price), and return the session without calling suggest_outfit or create_fit_card. Otherwise, take the first result, put it in session["selected_item"], and go on to suggest_outfit, then create_fit_card.
-**Where it lives:** `agent.py::run_agent`
-     in the if not results: check.
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
-     Regex
-**What moves through the session:** <!-- which fields, in what order -->
-     What moves through the session, in order:
+- **Where it lives:** `agent.py::run_agent`
+in the if not results: check.
+- **How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+Regex
+- **What moves through the session:** <!-- which fields, in what order -->
+What moves through the session, in order:
 
-     query (str, what the user typed) and wardrobe (dict, the user's closet)
-     parsed (dict: description, size, max_price)
-     search_results (list of listing dicts)
-     selected_item (dict, the first search result)
-     outfit_suggestion (str, outfit text)
-     fit_card (str, the caption)
-     error (str or None, set only when the run ends early)
+query (str, what the user typed) and wardrobe (dict, the user's closet)
+parsed (dict: description, size, max_price)
+search_results (list of listing dicts)
+selected_item (dict, the first search result)
+outfit_suggestion (str, outfit text)
+fit_card (str, the caption)
+error (str or None, set only when the run ends early)
 ---
 
 ## Sample Run
@@ -144,7 +144,7 @@ $ python app.py ask 'vintage graphic tee under $30'
 [4] suggest_outfit
       in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
       out: **Outfit 1:** Pair the butterfly baby tee with the baggy straight-leg jeans, dark wash (bottoms, dark blue, in…
-      →    10 wardrobe item(s)
+      →    10 wardrobe item(s))
 [5] create_fit_card
       in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
       out: Found this absolute gem of a Y2K butterfly baby tee while digging through the racks, and it's giving major off…
