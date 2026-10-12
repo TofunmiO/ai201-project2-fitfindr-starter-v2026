@@ -110,14 +110,14 @@ in the if not results: check.
 Regex
 - **What moves through the session:** <!-- which fields, in what order -->
 What moves through the session, in order:
+     - query (str, what the user typed) and wardrobe (dict, the user's closet)
+     - parsed (dict: description, size, max_price)
+     - search_results (list of listing dicts)
+     - selected_item (dict, the first search result)
+     - outfit_suggestion (str, outfit text)
+     - fit_card (str, the caption)
+     - error (str or None, set only when the run ends early)
 
-query (str, what the user typed) and wardrobe (dict, the user's closet)
-parsed (dict: description, size, max_price)
-search_results (list of listing dicts)
-selected_item (dict, the first search result)
-outfit_suggestion (str, outfit text)
-fit_card (str, the caption)
-error (str or None, set only when the run ends early)
 ---
 
 ## Sample Run
