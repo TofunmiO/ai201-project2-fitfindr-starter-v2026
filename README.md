@@ -206,6 +206,7 @@ Nothing beats the effortless 90s off-duty model vibe of a good medium wash. Thes
 A working function that reused my _size_tokens and _size_matches helpers and added weighted scoring (title, category and tags count double). Claude also pointed out a bug in my size helper: it returned true when the wanted size and the listing size shared any token, so "US 8" also matched "US 9" because both contain "US".
 - *What I changed:*
 I accepted the rewrite after seeing the reasoning. A requested size must now match as whole tokens, so "M" matches "S/M" and "M/L" but not "XL". I asked for a check of the price ceiling and size cases before moving on.
+
 **Moment 2**
 
 - *What I asked for:*
