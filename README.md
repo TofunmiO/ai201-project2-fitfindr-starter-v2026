@@ -235,14 +235,96 @@ Claude confirmed that it had been implemented and found two hand-offs, the parse
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1. matching query completes | 4 of 5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED |
+| 1. matching query completes | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET |
 | 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET |
-| 3. empty wardrobe |  | PASS | PASS | PASS | PASS | PASS | MET |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+|    empty wardrobe | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET |
+| 3. outfit names the selected item | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET |
+| 4. fit card states the real price and platform | 5 of 5 |  PASS | PASS | PASS | PASS | PASS | MET |
+| 5. every result within the price ceiling | 5 of 5 | PASS | PASS  | PASS | PASS | PASS | MET |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
+
+Every block below is Try 1 of that scenario in `results/run_2026-10-18_2154_before.md`, written by `run_eval.py::main` (which calls `agent.py::run_agent`).
+
+**Criterion 1 — matching query completes** (`agent.py::run_agent`, trace; `tools.py::create_fit_card`, caption). Query: `vintage graphic tee under $30`
+
+```text
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Vintage Band Tee — Faded Grey, Graphic Tee — 2003 Tour Bootleg Style … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: **Outfit 1: Y2K Streetwear** Pair the butterfly baby tee with the baggy straight-leg jeans, dark wash (bottoms…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Literal peak 2000s energy right here. Just scored this butterfly baby tee on Depop for $18 and it’s giving maj…
+```
+
+```text
+Fit card: Literal peak 2000s energy right here. Just scored this butterfly baby tee on Depop for $18 and it’s giving major Y2K streetwear. Throw it on with baggy jeans and chunky sneaks or some khaki trousers and combat boots for the ultimate effortless throwback.
+```
+
+**Criterion 2 — impossible query stops early** (`agent.py::run_agent`, branch; `agent.py::_nothing_found_message`, message). Query: `designer ballgown size XXS under $5`
+
+```text
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
+```
+
+```text
+Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+```
+
+**Criterion 3 — outfit names the selected item** (`tools.py::suggest_outfit`)
+
+```text
+selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+
+**Outfit 1: Y2K Casual-Chic**
+Pair the baby tee with the baggy straight-leg jeans, dark wash (bottoms, dark blue, indigo) cinched with the brown leather belt. Layer on the slightly cropped vintage black denim jacket (outerwear, black) and finish with the chunky white sneakers (shoes, white) and the black crossbody bag.
+
+**Outfit 2: Streetwear Contrast**
+Tuck the butterfly tee into the wide-leg khaki trousers (bottoms, khaki, tan) and throw the oversized grey crewneck sweatshirt (tops, grey, charcoal) loosely over your shoulders. Ground the look with the black combat boots (shoes, black) and carry the black crossbody bag.
+```
+
+**Criterion 4 — fit card states the real price and platform** (`tools.py::create_fit_card`)
+
+```text
+selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+
+Y2K fairy is logging on. Found this little butterfly baby tee on depop for just $18, and it’s giving major 2000s mall-rat energy. Layer it over some wide-leg khakis with your favorite combat boots, or keep it classic with baggy indigo denim.
+```
+
+**Criterion 5 — every result within the price ceiling** (`tools.py::search_listings`, checked separately because the results file lists only the first three titles). Query: `vintage graphic tee under $30`, ceiling $30
+
+```text
+lst_002  $18  Y2K Baby Tee — Butterfly Print
+lst_033  $19  Vintage Band Tee — Faded Grey
+lst_006  $24  Graphic Tee — 2003 Tour Bootleg Style
+lst_015  $26  Vintage Graphic Hoodie — Faded Black
+lst_014  $12  Leather Belt — Brown, Braided
+lst_034  $14  Bucket Hat — Reversible, Brown Plaid
+lst_017  $15  Mesh Long-Sleeve Top — Black
+lst_020  $16  Henley Long Sleeve — Washed Burgundy
+lst_024  $18  Vintage Polo Shirt — Forest Green
+lst_012  $20  Oversized Crewneck Sweatshirt — Vintage Navy
+```
 
 
 ---
