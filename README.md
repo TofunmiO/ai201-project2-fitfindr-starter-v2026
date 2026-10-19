@@ -232,7 +232,8 @@ Arguments against each criterion. The strongest were that criterion 5 never test
 
 - *What came back:*
 Claude suggested adding "the writer found this item secondhand… the buyer, not the seller" to the fit card prompt. I asked where it got "secondhand" from.
-What came back: It said it inferred it from the README and docstrings ("thrift shopper", "the item the user is considering"), and that "buyer" was an assumption, since nothing in the data says a purchase happened.
+- *What came back:*
+It said it inferred it from the README and docstrings ("thrift shopper", "the item the user is considering"), and that "buyer" was an assumption, since nothing in the data says a purchase happened.
 - *What I changed:*
  I had it soften the wording to "The writer is a shopper posting about a thrift find. They are not selling it…", and then I re-ran the whole test.
 ---
