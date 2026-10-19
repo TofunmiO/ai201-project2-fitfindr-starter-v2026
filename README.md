@@ -447,24 +447,45 @@ full. -->
 
 **What I changed:**
 
+In `tools.py`, I added two sentences to the `create_fit_card` prompt: "The writer is a shopper posting about a thrift find. They are not selling it: do not say they are listing or selling the item." The platform line now also says "(where they found it)". Nothing else changed: same item data, same system prompt, same price and platform requirement.
+
 **Which failure it was meant to fix:**
+
+The seller voice from my diagnosis. In 3 of the 5 captions in the criterion 4 run, the fit card sounded like a seller ("I'm listing it on Depop today", "on my Depop"). It was a failure in the model's output, caused by my prompt: it passed `Platform: depop` but never said who the writer is, so the model guessed a seller. Criterion 4 as written was still met, because the price and platform were correct, so this was a quality problem my criteria did not catch.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. matching query completes | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. outfit names the selected item | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card states the real price and platform | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. every result within the price ceiling | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Did it help, and how do I know:**
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
 
+**Run logs side by side.** Before: `results/run_2026-10-18_2154_before.md`. After: `results/run_2026-10-18_2339_after.md`. Both ran 5 tries per scenario with caching off at temperature 0.9.
 
+| Criterion | Before | After |
+|---|---|---|
+| 1. matching query completes (4 of 5) | 5/5 | 5/5 |
+| 2. impossible query stops early (5 of 5) | 5/5 | 5/5 |
+| 3. outfit names the selected item (4 of 5) | 5/5 | 5/5 |
+| 4. fit card states the real price and platform (5 of 5) | 5/5 | 5/5 |
+| 5. every result within the price ceiling (5 of 5) | 5/5 | 5/5 |
+| *Not a criterion:* fit card sounds like a seller | 3 of 5 captions | 0 of 5 captions |
+
+Yes, it helped, on the thing it was meant to fix. None of my five criteria changed, because none of them measures the voice. I counted the seller voice by scanning the 5 captions in the criterion 4 scenario for "listing", "listed", "selling", "for sale", "my Depop" and "just dropped". Before, 3 of 5 had it. After, none did, and every caption still said $18 and Depop, so the facts did not get worse.
+
+Before (Try 3): "Found this Y2K butterfly baby tee for just $18 and I’m obsessed. I’m listing it on Depop today, but honestly debating keeping it for myself to wear with baggy jeans and chunky sneakers. Such a nostalgic, effortless street style vibe!"
+
+After (Try 1): "Found this sweet little butterfly print Y2K baby tee on Depop for just $18 and I'm obsessed. I'm thinking about styling it with baggy dark-wash jeans and a cropped zip hoodie for total nostalgic streetwear vibes, or grounding it with some edgy combat boots and khaki trousers. Such a good little score!"
+
+This is a small sample: 5 captions each, from a model at temperature 0.9. It shows the change moved the pattern, not that the seller voice can never come back. Criterion 5 is unchanged by design, since the change only touched `create_fit_card`.
 
 ---
 

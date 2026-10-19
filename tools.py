@@ -166,7 +166,7 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    items =(wardrobe or {}).get("items") or []
+    items = (wardrobe or {}).get("items") or []
 
     item_text = (
         f"{new_item['title']} — {new_item['category']}, "
@@ -255,8 +255,12 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
         f"Price: ${new_item['price']:g}\n"
         f"Platform: {new_item['platform']}\n"
         f"Outfit idea: {outfit}\n\n"
-        "Mention the item, its price and the platform once each, and be "
-        "specific about the vibe."
+        # Unit 4 improvement: the prompt never said who the writer is, so the model
+        # guessed a seller ("I'm listing it on Depop"). State the role explicitly.
+        "The writer is a shopper posting about a thrift find. They are not "
+        "selling it: do not say they are listing or selling the item.\n"
+        "Mention the item, its price and the platform (where they found it) "
+        "once each, and be specific about the vibe."
     )
     response = generate(prompt, system=system)
     return response.strip() or "Found something great, outfit details coming soon."
