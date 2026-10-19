@@ -294,20 +294,62 @@ that produced it:
 **Happy path**
 
 ```
+(.venv) tofunmio@Oluwatofunmis-MacBook-Air ai201-project2-fitfindr-starter-v2026 % python app.py ask 'vintage graphic tee under $30' --trace
 
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Vintage Band Tee — Faded Grey, Graphic Tee — 2003 Tour Bootleg Style … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: **Outfit 1:** Pair the butterfly baby tee with the baggy straight-leg jeans, dark wash (bottoms, dark blue, in…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Found this absolute gem of a Y2K butterfly baby tee while digging through the racks, and it's giving major off…
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   **Outfit 1:** Pair the butterfly baby tee with the baggy straight-leg jeans, dark wash (bottoms, dark blue, indigo) and layer the vintage black denim jacket (outerwear, black) on top. Finish the look with the chunky white sneakers (shoes, white) for an effortless Y2K street style vibe.
+
+**Outfit 2:** Tuck the baby tee into the wide-leg khaki trousers (bottoms, khaki, tan) secured with the brown leather belt (accessories, brown). Slip on the black combat boots (shoes, black) and throw the black cropped zip hoodie (tops, black) over your shoulders for a casual, contrast-heavy aesthetic.
+
+  Fit card: Found this absolute gem of a Y2K butterfly baby tee while digging through the racks, and it's giving major off-duty Bratz doll energy. You can style it super easy with baggy dark wash denim and chunky sneaks, or tuck it into khaki trousers with combat boots for that perfect contrast. Grabbed this baby tee for just $18 over on my Depop before someone else snags it!
+
+0 model calls this session, 2 served from cache
 ```
 
 **Empty search**
 
 ```
+(.venv) tofunmio@Oluwatofunmis-MacBook-Air ai201-project2-fitfindr-starter-v2026 % python app.py ask 'designer ballgown size XXS under $5' --trace
 
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
+
+  Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+
+0 model calls this session
 ```
 
 **On the MCP move:** <!-- what changed in your code, and whether anything
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
-
+`search_listings` is registered in `mcp_server.py`, and `run_agent` now calls it only through `call_tool`; the line that called `_search`, which fell back to a direct call, is commented out. Nothing behaved differently: results matched direct calls for four queries, including the empty list and `None` brands.
 
 
 ---
