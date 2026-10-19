@@ -219,7 +219,22 @@ Claude confirmed that it had been implemented and found two hand-offs, the parse
 
      Don't fill these in during unit 3.
      ═══════════════════════════════════════════════════════════════════ -->
+**Moment 3**
 
+- *What I asked for:*
+ After my verdicts were all MET, I asked Claude to argue the opposite verdict as strongly as it could.
+- *What came back:*
+Arguments against each criterion. The strongest were that criterion 5 never tested the boundary and that some fit cards sounded like a seller.
+- *What I changed:*
+ I put both points in my Diagnoses section and fixed the seller voice. I kept the verdicts, since the sentences as written were satisfied.
+
+**Moment 4**
+
+- *What came back:*
+Claude suggested adding "the writer found this item secondhand… the buyer, not the seller" to the fit card prompt. I asked where it got "secondhand" from.
+What came back: It said it inferred it from the README and docstrings ("thrift shopper", "the item the user is considering"), and that "buyer" was an assumption, since nothing in the data says a purchase happened.
+- *What I changed:*
+ I had it soften the wording to "The writer is a shopper posting about a thrift find. They are not selling it…", and then I re-ran the whole test.
 ---
 
 ## Run Log — Before
@@ -494,8 +509,10 @@ This is a small sample: 5 captions each, from a model at temperature 0.9. It sho
 <!-- For each criterion still missed: what you'd do, and why you stopped where
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
-
-
+All my criteria met. However, there are still some things broken 
+- A bare "size 8" is ignored. parse_query('platform sneakers size 8') returns size: None, so the filter is skipped silently. This is the starter's own example query.
+- A price without $ is ignored. "jacket nothing over thirty dollars" returns max_price: None, so the search has no ceiling and says nothing. The parse_query docstring admits this limitation.
+- Singular and plural don't match. 'jean' returns 0 results but 'jeans' returns 3. 'sneaker' returns 0 and 'sneakers' 2. 'tees' returns 0 but 'tee' returns 5. A query whose only matching word is the wrong form comes back empty, and the loop stops. If other words match (like "jean jacket", which gave 4 results), it still works.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 

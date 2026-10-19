@@ -1,6 +1,4 @@
 import re
-
-import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
