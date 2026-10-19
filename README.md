@@ -349,15 +349,17 @@ lst_012  $20  Oversized Crewneck Sweatshirt — Vintage Navy
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Matching query completes | 4 of 5 | MET (5/5) | All 5 tries ran parse_query, search_listings, suggest_outfit and create_fit_card and ended with a non-empty fit card. |
+| 2 | Impossible query stops early | 5 of 5 | MET (5/5) | All 5 tries stopped at the branch with no suggest_outfit step and printed a "Things to change" message naming broader words, size and price. |
+| 3 | Outfit names the selected item | 4 of 5 | MET (5/5) | Every outfit said "baby tee", "butterfly tee" or "Y2K baby tee" for the selected Y2K Baby Tee, not a generic word like "top" or "tee". |
+| 4 | Fit card states the real price and platform | 5 of 5 | MET (5/5) | Every fit card said $18 and Depop and no other price. |
+| 5 | Every result within the price ceiling | 5 of 5 | MET (5/5) | The results file lists only the first three titles, so I checked all 10 returned prices with a separate search_listings run: the highest was $26, none over $30. Reproduce with `python check_prices.py`. |
 
 **Diagnoses**
 
+I missed nothing: all five criteria were met against their targets. One pattern showed up anyway, and it is in the model's output, not in a tool or the loop. In 3 of the 5 captions in the criterion 4 run, the fit card sounds like a seller ("I'm listing it on Depop today", "on my Depop"). The cause is in my `create_fit_card` prompt: it passes `Platform: depop` but never says the user is the buyer who found the item, so the model guesses a seller's voice. The price and platform are stated correctly, so criterion 4 as written is still met, but the card is not what I wanted.
 
+My targets were probably low. Criteria 1 and 3 had targets of 4 of 5 and passed 5 of 5, and criteria 2 and 5 are enforced by plain code, so they were close to certain. The criterion I would tighten is 4, so it also checks that the caption reads like someone who found the item and not someone selling it. I would also tighten criterion 5: its highest result was $26 against a $30 ceiling, so no listing was near the boundary and a `<` instead of `<=` mistake would not have shown. I have left both criteria as written.
 
 ---
 
